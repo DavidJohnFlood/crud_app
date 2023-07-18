@@ -1,0 +1,42 @@
+version: "3"
+services:
+  db:
+    image: "postgres:latest"
+    restart: always
+    container_name: db
+    environment:
+      POSTGRES_USER: user1
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: db
+    ports:
+      - 5432:5432
+    volumes:
+      - ./my_data_directory:/var/lib/postgresql/data
+    networks:
+    - app-network
+
+  frontend:
+    build: ./ui/myapp
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
+    depends_on:
+      - server
+
+  server:
+    build: ./api
+    container_name: server
+    ports:
+      - "8080:8080"
+    networks:
+    - app-network
+    environment:
+      DB_CONNECTION_STRING: postgres://user1:password@db:5432/db
+    depends_on:
+      - db
+
+networks:
+  app-network:
+    driver: bridge
