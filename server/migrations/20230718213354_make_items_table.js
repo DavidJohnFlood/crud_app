@@ -3,9 +3,10 @@
  * @returns { Promise<void> }
  */
 exports.up = function(knex) {
-    return knex.schema.createTable('item', (table) => {
+    return knex.schema.createTable('items', (table) => {
         table.increments();
         table.integer('user_id');
+        table.foreign('user_id').references('users.id');
         table.string('item_name', 64);
         table.string('description', 512);
         table.integer('quantity');
@@ -17,5 +18,5 @@ exports.up = function(knex) {
  * @returns { Promise<void> }
  */
 exports.down = function(knex) {
-    return knex.schema.dropTableIfExists('item');
+    return knex.schema.dropTableIfExists('items');
 };

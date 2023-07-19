@@ -1,17 +1,17 @@
 version: "3"
 services:
-  db:
+  database:
     image: "postgres:latest"
     restart: always
-    container_name: db
+    container_name: postgres-database
     environment:
-      POSTGRES_USER: user1
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: db
+      POSTGRES_DB: inventory
     ports:
       - 5432:5432
-    volumes:
-      - ./my_data_directory:/var/lib/postgresql/data
+    # volumes:
+    #   - ./my_data_directory:/var/lib/postgresql/data
     networks:
     - app-network
 
@@ -33,7 +33,7 @@ services:
     networks:
     - app-network
     environment:
-      DB_CONNECTION_STRING: postgres://user1:password@db:5432/db
+      DB_CONNECTION_STRING: postgres://postgres:password@db:5432/inventory
     depends_on:
       - db
 

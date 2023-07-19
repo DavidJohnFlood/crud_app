@@ -5,41 +5,92 @@ const port = 8080;
 const knex = require('knex')(require('./knexfile.js')['development'])
 
 app.use(express.json())
-app.use(express.text())
 app.use(cors())
 
 app.listen(port, ()=> {console.log(`Server listening on port ${port}`)})
 
 app.get('/', (req, res) =>{
-    res.send('Application up and running.')
+    res.send({message: 'Application up and running.'})
+    console.log(`GET /`)
 })
 
-app.get('/movies', (req, res) =>{
+app.get('/all_items', (req, res) =>{//do the 100 char cutoff here???
     knex.select('*')
-        .from('movies')
-        .then(movies => { res.status(200).json(movies) })
-        .catch(err => { res.status(500).json({message: err}) })
+        .from('items')
+        .then(items => { res.status(200).json(items) })
+        .then(console.log(`GET /all_items`))
+        .catch(err => { res.status(500).json({message: err})
+                        console.log(`GET /all_items ERROR: ${err}`)})
 })
 
-app.post('/movies', (req, res) =>{
-    const { tmdb_id, title, overview, release_date, poster_path, vote_average, vote_count } = req.body;
-    console.log({ tmdb_id, title, overview, release_date, poster_path, vote_average, vote_count })
+app.get('/my_items/:user_id', (req, res) =>{
     knex.select('*')
-    .from('movies')
-    .where('tmdb_id', tmdb_id)
-    .then((data) => {
-        if (data.length > 0){
-            res.status(404).json({movieCreated: false, message: `Movie already saved!`});
-        }else{
-            knex('movies')
-            .insert({ tmdb_id, title, overview, release_date, poster_path, vote_average, vote_count })
-            .then(() => res.status(201).json({movieCreated: true, message: 'Movie added successfully!'}))
-        }
-    })
-    .catch((err) =>
-        res.status(500).json({
-        message: 'An error occurred while posting the movie!',
-        error: err,
-        })
-    );
-});
+        .from('items')
+        .where('user_id', req.params.user_id)
+        .then(items => { res.status(200).json(items) })
+        .then(console.log(`GET /my_items/${req.params.user_id}`))
+        .catch(err => { res.status(500).json({message: err})
+                        console.log(`GET /my_items/${req.params.user_id} ERROR: ${err}`)})
+})
+
+app.get('/items/:item_id', (req, res) =>{
+    knex.select('*')
+        .from('items')
+        .where('id', req.params.item_id)
+        .then(item => { res.status(200).json(item) })
+        .then(console.log(`GET /items/${req.params.item_id}`))
+        .catch(err => { res.status(500).json({message: err})
+                        console.log(`GET /items/${req.params.item_id} ERROR: ${err}`)})
+})
+
+app.put('/items/:item_id', (req, res) =>{
+    const { user_id, quantity, item_name, description } = req.body;
+    knex.select('*')
+        .from('items')
+        .where('id', req.params.item_id)
+        .update({ user_id, quantity, item_name, description })
+        .then((rowCount) => {(rowCount===0)?
+            res.status(404).json({message: 'Item not found'})
+            :res.status(200).json({message: 'Item put'})})
+        .then(console.log(`PUT /items/${req.params.item_id}`))
+        .catch(err => { res.status(500).json({message: err})
+                        console.log(`PUT /items/${req.params.item_id} ERROR: ${err}`)})
+})
+
+app.patch('/items/:item_id', (req, res) =>{
+    const { user_id, quantity, item_name, description } = req.body;
+    knex.select('*')
+        .from('items')
+        .where('id', req.params.item_id)
+        .update({ user_id, quantity, item_name, description })
+        .then((rowCount) => {(rowCount===0)?
+            res.status(404).json({message: 'Item not found'})
+            :res.status(200).json({message: 'Item patched'})})
+        .then(console.log(`PATCH /items/${req.params.item_id}`))
+        .catch(err => { res.status(500).json({message: err})
+                        console.log(`PATCH /items/${req.params.item_id} ERROR: ${err}`)})
+})
+
+app.post('/items/', (req, res) =>{
+    const { user_id, quantity, item_name, description } = req.body;
+    knex('items')
+        .insert({ user_id, quantity, item_name, description })
+        .returning('id')
+        .then((ids) => {res.status(201).json({message: `Item added`, item_id: ids[0].id})
+                        console.log(`POST /items/  New Id: ${ids[0].id}`)})
+        .catch(err => { res.status(500).json({message: err})
+                        console.log(`POST /items/ ERROR: ${err}`)})
+})
+
+app.delete('/items/:item_id', (req, res) =>{
+    knex.select('*')
+        .from('items')
+        .where('id', req.params.item_id)
+        .del()
+        .then((rowCount) => {(rowCount===0)?
+                res.status(404).json({message: 'Item not found'})
+                :res.status(200).json({message: 'Item deleted'})})
+        .then(console.log(`DELETE /items/${req.params.item_id}`))
+        .catch(err => { res.status(500).json({message: err})
+                        console.log(`DELETE /items/${req.params.item_id} ERROR: ${err}`)})
+})
