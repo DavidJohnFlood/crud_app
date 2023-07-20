@@ -2,6 +2,11 @@ version: "3"
 services:
   database:
     image: "postgres:latest"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
     restart: always
     container_name: postgres-database
     environment:
@@ -9,15 +14,13 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: inventory
     ports:
-      - 5432:5432
-    # volumes:
-    #   - ./my_data_directory:/var/lib/postgresql/data
+      - "5432:5432"
     networks:
     - app-network
 
-  frontend:
-    build: ./ui/myapp
-    container_name: frontend
+  client:
+    build: ./client
+    container_name: client
     ports:
       - "3000:3000"
     networks:
@@ -26,16 +29,17 @@ services:
       - server
 
   server:
-    build: ./api
+    build: ./server
     container_name: server
     ports:
       - "8080:8080"
     networks:
     - app-network
     environment:
-      DB_CONNECTION_STRING: postgres://postgres:password@db:5432/inventory
+      DB_CONNECTION_STRING: postgres://postgres:password@database:5432/inventory
     depends_on:
-      - db
+      database:
+        condition: service_healthy
 
 networks:
   app-network:

@@ -4,9 +4,10 @@
 module.exports = {
 
     development: {
-      client: 'postgresql',
-      connection: 'postgresql://postgres:docker@localhost:5432/inventory',
+        client: 'postgresql',
+        connection: process.env.DB_CONNECTION_STRING || 'postgresql://postgres:password@localhost:5432/inventory',
     },
+
 
     staging: {
       client: 'postgresql',

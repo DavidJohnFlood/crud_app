@@ -1,8 +1,27 @@
 # CRUD APP Submission
 ## Running
-In your linux terminal run this from the base project directory:
+In your linux terminal run the following from the base project directory:
 
-    docker-compose up -d
+    docker-compose up
+
+[Crud App Client](http://localhost:3000/)\
+Then Ctrl+Click the link above:
+
+## Running without docker-compose
+
+Start a Postgres Container with an 'inventory' database.
+
+    docker run --rm -e POSTGRES_PASSWORD=password -e POSTGRES_DB=inventory -it -p 5432:5432 postgres
+
+From the ./server directory, install dependencies and use ```npm run seedStart``` to migrate and seed the database and start the server.
+
+    npm install
+    npm run seedStart
+
+From the ./client directory, install dependencies and use ```npm start``` to start the client.
+
+    npm install
+    npm start
 
 [Crud App Client](http://localhost:3000/)\
 Then Ctrl+Click the link above:
@@ -11,20 +30,8 @@ Then Ctrl+Click the link above:
 This application runs on the following ports by default:\
 ```Client: 3000          Server: 8080          Database: 5432```
 
-To Change these defaults, edit the docker-compose.yaml file as needed.
-
-All containers remove themselves by default.\
-If you want to data to be persistant, remove the #s below in docker-compose.yaml\
-```# volumes:```\
-```#   - ./my_data_directory:/var/lib/postgresql/data```
-
-Note: If you store this data a folder will be created in the project directory.\
-It can only be deleted with superuser privleges:
-
-    sudo rm -r my_data_directory
-
 ## Seeded Data
-This app is seeded with some grocery store data.
+Database restores and seeds on startup with some grocery store data.
 
 We have the following inventory managers:
 
