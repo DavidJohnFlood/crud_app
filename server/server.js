@@ -14,7 +14,7 @@ app.get('/', (req, res) =>{
     console.log(`GET /`)
 })
 
-app.get('/all_items', (req, res) =>{//do the 100 char cutoff here???
+app.get('/all_items', (req, res) =>{
     knex.select('*')
         .from('items')
         .then(items => { res.status(200).json(items) })
@@ -93,4 +93,42 @@ app.delete('/items/:item_id', (req, res) =>{
         .then(console.log(`DELETE /items/${req.params.item_id}`))
         .catch(err => { res.status(500).json({message: err})
                         console.log(`DELETE /items/${req.params.item_id} ERROR: ${err}`)})
+})
+
+app.post('/login', (req, res) =>{
+    knex.select('*')
+        .from('users')
+        .where('username', req.body.username)
+        .andWhere('password', req.body.password)
+        .then(user => {
+            user.length===0?
+                res.status(400).json({message: "User not found"})
+                :res.status(200).json(user)})
+        .then(console.log(`POST /login`))
+        .catch(err => { res.status(500).json({message: err})
+                        console.log(`POST /login ERROR: ${err}`)})
+})
+
+app.post('/user', (req, res) =>{
+    const { first_name, last_name, username, password } = req.body;
+    knex.select("*")
+        .from('users')
+        .where('username', username)
+        .then(rows=>{
+            if(rows.length>0)
+            {res.status(409).json({created: false, message: "User already exists"})}
+            else
+            {
+                knex('users')
+                    .insert({ first_name, last_name, username, password })
+                    .returning('id')
+                    .then((ids) => {res.status(201).json({created: true, id: ids[0].id, message: `User added.`})
+                                    console.log(`POST /user  New Id: ${ids[0].id}`)})
+                    .catch(err => { res.status(500).json({message: err})
+                                    console.log(`POST /user ERROR: ${err}`)})
+            }
+        })
+        .catch(err => {
+            res.status(500).json({message: err})
+            console.log(`POST /user ERROR: ${err}`)})
 })

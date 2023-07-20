@@ -24,7 +24,7 @@ export default function Inventory() {
                     </tr>
                 </thead>
                 <tbody>
-                    {allItems.filter(item=>item.user_id===userId).map(item=>
+                    {allItems.filter(item=>item.user_id===userId)?.map(item=>
                         <Tr key={item.id} onClick={()=>{setSelectedItem(item);setPopUpVisible(true)}}>
                             <td>{item.id}</td>
                             <td>{item.quantity}</td>
@@ -64,11 +64,24 @@ export default function Inventory() {
                 </TileDescription>
                 <ButtonContainer>
                     <Button onClick={()=>setEditMode(true)} disabled={editMode}>Edit</Button>
+                    <Button onClick={()=>handleDelete()} disabled={!editMode||selectedItem.id==="NEW"}>Delete</Button>
                     <Button onClick={()=>handleSave()} disabled={!editMode}>Save</Button>
                     <Button onClick={()=>{setPopUpVisible(false);setEditMode(false)}}>Close</Button>
                 </ButtonContainer>
             </PopUpWrapper>
         )
+
+        function handleDelete() {
+            if(!window.confirm("Are you sure you want to delete this item?"))
+            {return null}
+            else{
+                fetch(`http://localhost:8080/items/${selectedItem.id}`, { method: 'DELETE' })
+                .then(response => response.json())
+                .then(data=> console.log(data.message, `Item Id: ${selectedItem.id}`))
+                .then(()=>{setPopUpVisible(false);setEditMode(false);setRefresh(!refresh)})
+                .catch(error => console.error('Error:', error));
+            }
+        }
 
         function handleSave() {
             let item_id = document.getElementById(`tile_id`).textContent
@@ -80,11 +93,10 @@ export default function Inventory() {
             }
             console.log(data.quantity)
             if(isNaN(data.quantity))
-            {alert("Quantity must be a number");return null}
+            {window.alert("Quantity must be a number");return null}
 
             if(selectedItem.id === 'NEW')
             {
-                console.log("NEW")
                 fetch("http://localhost:8080/items", {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -97,7 +109,6 @@ export default function Inventory() {
             }
             else
             {
-                console.log("NOT NEW")
                 fetch(`http://localhost:8080/items/${item_id}`, {
                     method: 'PUT',
                     headers: {'Content-Type': 'application/json'},
