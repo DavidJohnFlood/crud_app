@@ -6,11 +6,11 @@ export const AppContext = createContext();
 
 export default function App() {
   const [allItems, setAllItems] = useState([]);
-  const [userId, setUserId] = useState(0);
+  const [user, setUser] = useState({id: 0, first_name: '', last_name: '', username: ''});
   const [refresh, setRefresh] = useState(false);
 
   const ContextObject = { allItems, setAllItems,
-                          userId, setUserId,
+                          user, setUser,
                           refresh, setRefresh}
 
   useEffect(() => {
@@ -22,7 +22,6 @@ export default function App() {
   }, [refresh]);
 
   return (
-    //!allItems.length?<>{"Nothing shows up if get fails"}</>://Should style this at some point ???loading???
     <AppWrapper id="App">
       <AppContext.Provider value={ContextObject}>
         <BrowserRouter>
@@ -49,8 +48,7 @@ const AppWrapper = styled.div`
   grid-template-rows: 10% 90%;
   background-color: #857272;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-  sans-serif;
+  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 `;
@@ -60,3 +58,9 @@ grid-row: 1 / 2;
 const BodyContainer = styled.div`
 grid-row: 2 / 3;
 `
+//Color Palette:
+//#EFEFEF Anti-Flash White
+//#0D1B2A Rich Black
+//#6A8D92 Air Force Blue
+//#DB9D47 Earth Yellow
+//#804E49 Bole (Redish Grey)

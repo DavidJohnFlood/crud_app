@@ -1,47 +1,45 @@
-import { useContext, useRef } from 'react';
-import { Link } from 'react-router-dom'
+import { useContext } from 'react';
+import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components';
 import { AppContext } from '../App'
 
 export default function Header() {
-    const { userId } = useContext(AppContext);
+    const { user } = useContext(AppContext);
+    const navigate = useNavigate();
 
     return (
         <HeaderWrapper id="Header">
-            <Counter/>
-            <Link to="/">Home</Link>
-            <Link to="/inventory">Inventory</Link>
-            {userId===0 ?
-                <Link to="/login" id={userId}>Login</Link>
+            <NavButton onClick={()=>{navigate("/")}}>Home</NavButton>
+            <NavButton onClick={()=>{navigate("/inventory")}}>Inventory</NavButton>
+            {user.id===0 ?
+                <NavButton onClick={()=>{navigate("/login")}}>Login</NavButton>
                 :<>
-                <Link to="/my_inventory" id={userId}>My Inventory</Link>
-                <Link to="/login" id={userId}>Logout</Link>
+                <NavButton onClick={()=>{navigate("/my_inventory")}}>My Inventory</NavButton>
+                <NavButton onClick={()=>{navigate("/login")}}>Logout</NavButton>
                 </>
             }
         </HeaderWrapper>
     )
 }
-export const Counter = props => {
-    const renderCounter  = useRef(0);
-    renderCounter.current = renderCounter.current + 1;
-    return <Count>Renders: {renderCounter.current}, {props.message}</Count>;
-};
-const Count = styled.div`
-position: absolute;
-top: 0;
-left: 0;
-`
 const HeaderWrapper = styled.div`
-background-color: #7C4747;
+background-color: #6A8D92;
+border-bottom: 6px solid #0D1B2A;
+box-sizing: border-box;
 height: 100%;
-width: 90%;
-padding-left: 5%;
-padding-right: 5%;
-
+width: 100%;
+padding-left: 15%;
+padding-right: 15%;
 display: flex;
 flex-direction: row;
 flex-wrap: nowrap;
-justify-content: space-between;
+justify-content: space-around;
 align-items: center;
-font-size: large;
+`
+const NavButton = styled.button`
+background-color: #0D1B2A;
+padding: 10px 40px;
+border-radius: 10px;
+font-size: 2vh;
+font-weight: bold;
+color: #EFEFEF;
 `
